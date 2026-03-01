@@ -1,0 +1,32 @@
+<script>
+  var routes = [
+    {
+      path: '/',
+      redirect: '/dashboard'
+    },
+    // 仪表盘
+    {
+      path: '/dashboard',
+      meta: { title: '仪表盘' },
+      component: app._context.components['page-dashboard']
+    },
+    // 用户管理
+    {
+      path: '/users/list',
+      meta: { title: '用户列表', parent: '用户管理' },
+      component: app._context.components['page-users-list']
+    },
+    // 产品管理
+    {
+      path: '/products/list',
+      meta: { title: '产品列表', parent: '产品管理' },
+      component: app._context.components['page-products-list']
+    },
+    // 系统设置
+    {
+      path: '/settings/general',
+      meta: { title: '基本设置', parent: '系统设置' },
+      component: app._context.components['page-settings-general']
+    },
+  ]
+</script>

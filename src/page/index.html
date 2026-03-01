@@ -1,0 +1,38 @@
+<!-- @k-url / -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - Kooboo</title>
+    
+    <view id="common.common"></view>
+</head>
+
+<body>
+    <!-- 整体后台布局容器 -->
+    <div id="app">
+        <el-config-provider :locale="elementZh">
+            <page-component></page-component>
+        </el-config-provider>
+    </div>
+
+    <!-- 引入组件 -->
+    <view id="common.app-header"></view>
+    <view id="common.app-sidebar"></view>
+    <view id="common.app"></view>
+    <view id="common.app-footer"></view>
+
+    <!-- 页面组件 -->
+    <view id="page.dashboard"></view>
+    <view id="page.users-list"></view>
+    <view id="page.products-list"></view>
+    <view id="page.settings-general"></view>
+
+    <!-- Vue 应用初始化 -->
+    <view id="common.vue-init"></view>
+</body>
+
+</html>

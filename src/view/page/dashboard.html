@@ -1,0 +1,383 @@
+<template id="page-dashboard">
+    <div class="page-dashboard">
+        <!-- 欢迎标题 -->
+        <div class="page-header">
+            <div class="page-title">
+                <h1>仪表盘</h1>
+                <p class="page-subtitle">欢迎回来，管理员</p>
+            </div>
+            <div class="page-actions">
+                <el-button type="primary">
+                    <el-icon><Download /></el-icon>
+                    导出报告
+                </el-button>
+            </div>
+        </div>
+
+        <!-- KPI 统计卡片 -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: var(--color-primary-bg); color: var(--color-primary);">
+                    <el-icon><user></user></el-icon>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-label">总用户数</div>
+                    <div class="kpi-value">12,345</div>
+                    <div class="kpi-trend positive">
+                        <el-icon><trend-charts></trend-charts></el-icon>
+                        <span>较上周 +12.5%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: var(--color-success-bg); color: var(--color-success);">
+                    <el-icon><shopping-cart></shopping-cart></el-icon>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-label">今日订单</div>
+                    <div class="kpi-value">856</div>
+                    <div class="kpi-trend positive">
+                        <el-icon><trend-charts></trend-charts></el-icon>
+                        <span>较昨日 +8.2%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: var(--color-warning-bg); color: var(--color-warning);">
+                    <el-icon><money></money></el-icon>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-label">月销售额</div>
+                    <div class="kpi-value">¥128,560</div>
+                    <div class="kpi-trend positive">
+                        <el-icon><trend-charts></trend-charts></el-icon>
+                        <span>较上月 +23.1%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: var(--color-info-bg); color: var(--color-info);">
+                    <el-icon><connection></connection></el-icon>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-label">活跃用户</div>
+                    <div class="kpi-value">4,521</div>
+                    <div class="kpi-trend negative">
+                        <el-icon><TrendCharts /></el-icon>
+                        <span>较上周 -2.3%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="chart-grid">
+            <!-- 销售趋势图 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>销售趋势</h3>
+                    <el-radio-group v-model="salesPeriod" size="small">
+                        <el-radio-button label="week">本周</el-radio-button>
+                        <el-radio-button label="month">本月</el-radio-button>
+                        <el-radio-button label="year">本年</el-radio-button>
+                    </el-radio-group>
+                </div>
+                <div class="chart-body">
+                    <div class="chart-placeholder">
+                        <el-icon :size="48"><data-analysis></data-analysis></el-icon>
+                        <p>销售趋势图表 (需集成 ECharts)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分类占比图 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>产品分类</h3>
+                </div>
+                <div class="chart-body">
+                    <div class="chart-placeholder">
+                        <el-icon :size="48"><pie-chart></pie-chart></el-icon>
+                        <p>产品分类占比图表</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3>最新订单</h3>
+                <el-button link type="primary" @click="$router.push('/orders')">查看全部</el-button>
+            </div>
+            <el-table :data="orders" stripe>
+                <el-table-column prop="id" label="订单号" width="120"></el-table-column>
+                <el-table-column prop="user" label="用户"></el-table-column>
+                <el-table-column prop="product" label="商品"></el-table-column>
+                <el-table-column prop="amount" label="金额">
+                    <template #default="{ row }">
+                        <span class="amount">¥{{ row.amount.toLocaleString() }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="status" label="状态" width="100">
+                    <template #default="{ row }">
+                        <el-tag :type="getStatusType(row.status)" size="small">
+                            {{ getStatusText(row.status) }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="time" label="时间" width="180"></el-table-column>
+                <el-table-column label="操作" width="120" fixed="right">
+                    <template #default="{ row }">
+                        <el-button link type="primary" size="small">详情</el-button>
+                        <el-button link type="primary" size="small">操作</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+    </div>
+</template>
+
+<script>
+    defineComponent('page-dashboard', {
+        template: '#page-dashboard',
+        props: {},
+        emit: [],
+        setup() {
+            const salesPeriod = ref('week')
+
+            // 模拟订单数据
+            const orders = ref([
+                { id: 'ORD-20240301', user: '张三', product: 'Premium 套餐', amount: 299, status: 'paid', time: '2024-03-01 14:30:25' },
+                { id: 'ORD-20240302', user: '李四', product: '基础套餐', amount: 99, status: 'paid', time: '2024-03-01 13:45:12' },
+                { id: 'ORD-20240303', user: '王五', product: '企业套餐', amount: 999, status: 'pending', time: '2024-03-01 12:20:05' },
+                { id: 'ORD-20240304', user: '赵六', product: 'Premium 套餐', amount: 299, status: 'shipped', time: '2024-03-01 11:15:33' },
+                { id: 'ORD-20240305', user: '钱七', product: '基础套餐', amount: 99, status: 'completed', time: '2024-03-01 10:05:18' },
+            ])
+
+            const getStatusType = (status) => {
+                const map = {
+                    paid: 'success',
+                    pending: 'warning',
+                    shipped: 'info',
+                    completed: 'success',
+                    cancelled: 'danger'
+                }
+                return map[status] || 'info'
+            }
+
+            const getStatusText = (status) => {
+                const map = {
+                    paid: '已支付',
+                    pending: '待支付',
+                    shipped: '已发货',
+                    completed: '已完成',
+                    cancelled: '已取消'
+                }
+                return map[status] || status
+            }
+
+            return {
+                salesPeriod,
+                orders,
+                getStatusType,
+                getStatusText
+            }
+        }
+    })
+</script>
+
+<style>
+.page-dashboard {
+    max-width: 1400px;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+}
+
+.page-title h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    margin: 0;
+}
+
+.page-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-gray-500);
+    margin: 4px 0 0 0;
+}
+
+/* KPI 卡片 */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.kpi-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+}
+
+.kpi-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    font-size: 24px;
+}
+
+.kpi-content {
+    flex: 1;
+}
+
+.kpi-label {
+    font-size: 0.875rem;
+    color: var(--color-gray-500);
+    margin-bottom: 4px;
+}
+
+.kpi-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+}
+
+.kpi-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+.kpi-trend.positive {
+    color: var(--color-success);
+}
+
+.kpi-trend.negative {
+    color: var(--color-error);
+}
+
+/* 图表区域 */
+.chart-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.chart-card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.chart-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    margin: 0;
+}
+
+.chart-body {
+    padding: var(--spacing-lg);
+    min-height: 280px;
+}
+
+.chart-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 240px;
+    color: var(--color-gray-400);
+}
+
+.chart-placeholder p {
+    margin-top: var(--spacing-md);
+    font-size: 0.875rem;
+}
+
+/* 表格区域 */
+.table-card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.table-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    margin: 0;
+}
+
+.amount {
+    font-weight: 500;
+    color: var(--color-success);
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+}
+</style>

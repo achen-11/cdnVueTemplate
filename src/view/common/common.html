@@ -1,0 +1,92 @@
+<script env="server">
+    k.utils.clientJS.setVariable('__CONFIG__', k.site.info.setting)
+    k.utils.clientJS.setVariable('__I18N__', k.utils.clientJS.i18n())
+</script>
+
+<link rel="stylesheet" href="/variables.css">
+<link rel="stylesheet" href="/element-plus.css">
+<link rel="stylesheet" href="/reset.css">
+<!-- 引入 Vue 全局版本 -->
+<script src="/vue.js"></script>
+<script src="/vue-router.js"></script>
+<script src="/vue-i18n.js"></script>
+<!-- 引入 axios -->
+<script src="/axios.js"></script>
+<!-- 引入 ElementPlus-->
+<script src="/element-plus.js"></script>
+<script src="/element-plus-icons.js"></script>
+<script src="/element-plus_zh.js"></script>
+<script src="/element-plus_en.js"></script>
+<!-- Vue 应用初始化和组件定义 -->
+<script>
+    // Kooboo Vue 组件注册工具
+    var { definePage, defineComponent, getComponents } = (function () {
+        var components = {}
+
+        return {
+            /**
+             * definePage - 定义页面主组件
+             * @param {object} component Vue 组件对象
+             */
+            definePage: function (component) {
+                var key = 'page-component'
+                if (components[key]) {
+                    console.error('components ' + key + ' multiple registration')
+                    return
+                }
+                components[key] = Object.assign({}, component, { template: '#page-component' })
+                return components[key]
+            },
+
+            /**
+             * defineComponent - 定义子组件
+             * @param {string} key 组件名称
+             * @param {object} component Vue 组件对象
+             */
+            defineComponent: function (key, component) {
+                if (components[key]) {
+                    console.error('components ' + key + ' multiple registration')
+                    return
+                }
+                components[key] = component
+                return components[key]
+            },
+
+            /**
+             * getComponents - 获取所有已注册的组件
+             */
+            getComponents: function () {
+                return components
+            }
+        }
+    })()
+
+    // Vue 常用方法
+    var {
+        ref,
+        reactive,
+        readonly,
+        watch,
+        computed,
+        onMounted,
+        onUnmounted,
+        onBeforeUnmount,
+        nextTick,
+        unref,
+        toRef,
+        toRefs,
+        getCurrentInstance,
+        h,
+        inject,
+        provide,
+        shallowRef,
+        useTemplateRef
+    } = Vue
+
+    // Element Plus
+    var ElementPlus = window.ElementPlus
+    var ElMessage = ElementPlus.ElMessage
+    var ElMessageBox = ElementPlus.ElMessageBox
+    var ElNotification = ElementPlus.ElNotification
+    var ElLoading = ElementPlus.ElLoading
+</script>

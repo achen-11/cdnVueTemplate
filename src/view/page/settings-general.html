@@ -1,0 +1,352 @@
+<template id="page-settings-general">
+    <div class="page-settings-general">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div class="page-title">
+                <h1>基本设置</h1>
+                <p class="page-subtitle">管理系统基本配置</p>
+            </div>
+        </div>
+
+        <div class="settings-layout">
+            <!-- 左侧设置菜单 -->
+            <div class="settings-menu">
+                <div
+                    class="menu-item"
+                    :class="{ active: activeTab === 'general' }"
+                    @click="activeTab = 'general'"
+                >
+                    <el-icon><setting></setting></el-icon>
+                    <span>基本设置</span>
+                </div>
+                <div
+                    class="menu-item"
+                    :class="{ active: activeTab === 'site' }"
+                    @click="activeTab = 'site'"
+                >
+                    <el-icon><site></site></el-icon>
+                    <span>站点设置</span>
+                </div>
+                <div
+                    class="menu-item"
+                    :class="{ active: activeTab === 'email' }"
+                    @click="activeTab = 'email'"
+                >
+                    <el-icon><message></message></el-icon>
+                    <span>邮件设置</span>
+                </div>
+                <div
+                    class="menu-item"
+                    :class="{ active: activeTab === 'upload' }"
+                    @click="activeTab = 'upload'"
+                >
+                    <el-icon><upload></upload></el-icon>
+                    <span>上传设置</span>
+                </div>
+            </div>
+
+            <!-- 右侧设置内容 -->
+            <div class="settings-content">
+                <!-- 基本设置 -->
+                <div v-if="activeTab === 'general'" class="settings-panel">
+                    <h3 class="panel-title">基本设置</h3>
+                    <el-form :model="generalForm" label-width="120px" class="settings-form">
+                        <el-form-item label="系统名称">
+                            <el-input v-model="generalForm.systemName" placeholder="请输入系统名称" />
+                        </el-form-item>
+                        <el-form-item label="系统描述">
+                            <el-input v-model="generalForm.description" type="textarea" :rows="3" placeholder="请输入系统描述" />
+                        </el-form-item>
+                        <el-form-item label="时区">
+                            <el-select v-model="generalForm.timezone" style="width: 100%">
+                                <el-option label="中国标准时间 (UTC+8)" value="Asia/Shanghai" />
+                                <el-option label="美国东部时间 (UTC-5)" value="America/New_York" />
+                                <el-option label="英国标准时间 (UTC+0)" value="Europe/London" />
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="语言">
+                            <el-radio-group v-model="generalForm.language">
+                                <el-radio label="zh-CN">简体中文</el-radio>
+                                <el-radio label="en-US">English</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item label="主题">
+                            <el-radio-group v-model="generalForm.theme">
+                                <el-radio label="light">浅色</el-radio>
+                                <el-radio label="dark">深色</el-radio>
+                                <el-radio label="auto">跟随系统</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleSaveGeneral">保存设置</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+
+                <!-- 站点设置 -->
+                <div v-if="activeTab === 'site'" class="settings-panel">
+                    <h3 class="panel-title">站点设置</h3>
+                    <el-form :model="siteForm" label-width="120px" class="settings-form">
+                        <el-form-item label="网站标题">
+                            <el-input v-model="siteForm.title" placeholder="请输入网站标题" />
+                        </el-form-item>
+                        <el-form-item label="网站描述">
+                            <el-input v-model="siteForm.description" type="textarea" :rows="3" placeholder="请输入网站描述" />
+                        </el-form-item>
+                        <el-form-item label="网站关键词">
+                            <el-input v-model="siteForm.keywords" placeholder="请输入关键词，用逗号分隔" />
+                        </el-form-item>
+                        <el-form-item label="网站Logo">
+                            <div class="logo-uploader">
+                                <el-image
+                                    :src="siteForm.logo"
+                                    fit="contain"
+                                    style="width: 120px; height: 40px; border: 1px solid var(--color-gray-200); border-radius: 8px;"
+                                />
+                                <el-button size="small">更换Logo</el-button>
+                            </div>
+                        </el-form-item>
+                        <el-form-item label="备案号">
+                            <el-input v-model="siteForm.icp" placeholder="请输入备案号" />
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleSaveSite">保存设置</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+
+                <!-- 邮件设置 -->
+                <div v-if="activeTab === 'email'" class="settings-panel">
+                    <h3 class="panel-title">邮件设置</h3>
+                    <el-form :model="emailForm" label-width="120px" class="settings-form">
+                        <el-form-item label="SMTP服务器">
+                            <el-input v-model="emailForm.host" placeholder="请输入SMTP服务器地址" />
+                        </el-form-item>
+                        <el-form-item label="SMTP端口">
+                            <el-input v-model="emailForm.port" type="number" placeholder="请输入SMTP端口" />
+                        </el-form-item>
+                        <el-form-item label="用户名">
+                            <el-input v-model="emailForm.username" placeholder="请输入用户名" />
+                        </el-form-item>
+                        <el-form-item label="密码">
+                            <el-input v-model="emailForm.password" type="password" show-password placeholder="请输入密码" />
+                        </el-form-item>
+                        <el-form-item label="发件人邮箱">
+                            <el-input v-model="emailForm.from" placeholder="请输入发件人邮箱" />
+                        </el-form-item>
+                        <el-form-item label="发件人名称">
+                            <el-input v-model="emailForm.fromName" placeholder="请输入发件人名称" />
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleSaveEmail">保存设置</el-button>
+                            <el-button @click="handleTestEmail">发送测试邮件</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+
+                <!-- 上传设置 -->
+                <div v-if="activeTab === 'upload'" class="settings-panel">
+                    <h3 class="panel-title">上传设置</h3>
+                    <el-form :model="uploadForm" label-width="120px" class="settings-form">
+                        <el-form-item label="最大文件大小">
+                            <el-input-number v-model="uploadForm.maxSize" :min="1" :max="100" />
+                            <span class="form-help-text">MB</span>
+                        </el-form-item>
+                        <el-form-item label="允许的文件类型">
+                            <el-checkbox-group v-model="uploadForm.allowedTypes">
+                                <el-checkbox label="jpg">JPG</el-checkbox>
+                                <el-checkbox label="png">PNG</el-checkbox>
+                                <el-checkbox label="gif">GIF</el-checkbox>
+                                <el-checkbox label="pdf">PDF</el-checkbox>
+                                <el-checkbox label="doc">Word</el-checkbox>
+                                <el-checkbox label="xls">Excel</el-checkbox>
+                            </el-checkbox-group>
+                        </el-form-item>
+                        <el-form-item label="图片压缩">
+                            <el-switch v-model="uploadForm.compress" />
+                            <span class="form-help-text">上传图片时自动压缩</span>
+                        </el-form-item>
+                        <el-form-item label="图片质量">
+                            <el-slider v-model="uploadForm.quality" :min="10" :max="100" show-input />
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleSaveUpload">保存设置</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    defineComponent('page-settings-general', {
+        template: '#page-settings-general',
+        props: {},
+        emit: [],
+        setup() {
+            const activeTab = ref('general')
+
+            const generalForm = reactive({
+                systemName: 'Kooboo 管理后台',
+                description: '基于 Kooboo 框架构建的企业级管理系统',
+                timezone: 'Asia/Shanghai',
+                language: 'zh-CN',
+                theme: 'light'
+            })
+
+            const siteForm = reactive({
+                title: 'Kooboo 企业管理系统',
+                description: '高效、安全、易用的企业管理系统',
+                keywords: '管理系统,后台,企业',
+                logo: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
+                icp: ''
+            })
+
+            const emailForm = reactive({
+                host: '',
+                port: 465,
+                username: '',
+                password: '',
+                from: '',
+                fromName: ''
+            })
+
+            const uploadForm = reactive({
+                maxSize: 10,
+                allowedTypes: ['jpg', 'png', 'gif'],
+                compress: true,
+                quality: 80
+            })
+
+            const handleSaveGeneral = () => {
+                ElMessage.success('基本设置已保存')
+            }
+
+            const handleSaveSite = () => {
+                ElMessage.success('站点设置已保存')
+            }
+
+            const handleSaveEmail = () => {
+                ElMessage.success('邮件设置已保存')
+            }
+
+            const handleTestEmail = () => {
+                ElMessage.info('发送测试邮件功能开发中')
+            }
+
+            const handleSaveUpload = () => {
+                ElMessage.success('上传设置已保存')
+            }
+
+            return {
+                activeTab,
+                generalForm,
+                siteForm,
+                emailForm,
+                uploadForm,
+                handleSaveGeneral,
+                handleSaveSite,
+                handleSaveEmail,
+                handleTestEmail,
+                handleSaveUpload
+            }
+        }
+    })
+</script>
+
+<style>
+.page-settings-general {
+    max-width: 1200px;
+}
+
+.page-header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.page-title h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    margin: 0;
+}
+
+.page-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-gray-500);
+    margin: 4px 0 0 0;
+}
+
+.settings-layout {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.settings-menu {
+    width: 200px;
+    flex-shrink: 0;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-sm);
+    box-shadow: var(--shadow-sm);
+    height: fit-content;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--color-gray-600);
+    transition: all var(--transition-base);
+}
+
+.menu-item:hover {
+    background: var(--color-gray-50);
+    color: var(--color-primary);
+}
+
+.menu-item.active {
+    background: var(--color-primary-bg);
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.settings-content {
+    flex: 1;
+}
+
+.settings-panel {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.panel-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    margin: 0 0 var(--spacing-lg) 0;
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.settings-form {
+    max-width: 600px;
+}
+
+.form-help-text {
+    margin-left: var(--spacing-sm);
+    color: var(--color-gray-500);
+    font-size: 0.875rem;
+}
+
+.logo-uploader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+</style>

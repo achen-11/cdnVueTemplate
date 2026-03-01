@@ -1,0 +1,321 @@
+<template id="app-header">
+    <div class="app-header">
+        <!-- 左侧：面包屑 -->
+        <div class="header-left">
+            <el-breadcrumb separator="/" class="header-left">
+                <el-breadcrumb-item :to="{ path: '/dashboard' }">
+                    <el-icon><HomeFilled /></el-icon>
+                </el-breadcrumb-item>
+                <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="index">
+                    {{ item }}
+                </el-breadcrumb-item>
+            </el-breadcrumb>
+        </div>
+
+        <!-- 右侧：工具栏 -->
+        <div class="header-right">
+            <!-- 搜索 -->
+            <div class="header-tool" @click="handleSearch">
+                <el-icon><search></search></el-icon>
+            </div>
+
+            <!-- 通知 -->
+            <el-popover
+                placement="bottom-end"
+                :width="320"
+                trigger="click"
+            >
+                <template #reference>
+                    <div class="header-tool notification-badge">
+                        <el-icon><bell></bell></el-icon>
+                        <span class="badge" v-if="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+                    </div>
+                </template>
+                <div class="notification-panel">
+                    <div class="notification-header">
+                        <span class="notification-title">通知</span>
+                        <el-button link type="primary" size="small" @click="markAllRead">全部已读</el-button>
+                    </div>
+                    <el-scrollbar max-height="300px">
+                        <div class="notification-list">
+                            <div class="notification-item" v-for="item in notifications" :key="item.id" :class="{ unread: !item.read }">
+                                <div class="notification-icon" :class="item.type">
+                                    <el-icon v-if="item.type === 'system'"><setting></setting></el-icon>
+                                    <el-icon v-else-if="item.type === 'order'"><shopping-cart></shopping-cart></el-icon>
+                                    <el-icon v-else><bell></bell></el-icon>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-text">{{ item.content }}</div>
+                                    <div class="notification-time">{{ item.time }}</div>
+                                </div>
+                            </div>
+                            <el-empty v-if="notifications.length === 0" description="暂无通知" :image-size="60" />
+                        </div>
+                    </el-scrollbar>
+                </div>
+            </el-popover>
+
+            <!-- 全屏 -->
+            <div class="header-tool" @click="toggleFullscreen">
+                <el-icon><full-screen></full-screen></el-icon>
+            </div>
+
+            <!-- 用户下拉 -->
+            <el-dropdown trigger="click" @command="handleUserCommand">
+                <div class="user-profile">
+                    <el-avatar :size="32" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
+                    <span class="user-name">管理员</span>
+                    <el-icon><arrow-down></arrow-down></el-icon>
+                </div>
+                <template #dropdown>
+                    <el-dropdown-menu>
+                        <el-dropdown-item command="profile">
+                            <el-icon><user></user></el-icon>
+                            个人中心
+                        </el-dropdown-item>
+                        <el-dropdown-item command="settings">
+                            <el-icon><setting></setting></el-icon>
+                            系统设置
+                        </el-dropdown-item>
+                        <el-dropdown-item divided command="logout">
+                            <el-icon><switch-button></switch-button></el-icon>
+                            退出登录
+                        </el-dropdown-item>
+                    </el-dropdown-menu>
+                </template>
+            </el-dropdown>
+        </div>
+    </div>
+</template>
+
+<script>
+    defineComponent('app-header', {
+        template: '#app-header',
+        props: {},
+        emits: [],
+        setup(props, { emit }) {
+            const route = useRoute()
+            const router = useRouter()
+
+            // 面包屑
+            const breadcrumbs = computed(() => {
+                const matched = route.matched.filter(item => item.meta && item.meta.title)
+                return matched.map(item => item.meta.title)
+            })
+
+            // 通知
+            const notifications = ref([
+                { id: 1, type: 'system', content: '系统将于今晚23:00进行维护', time: '10分钟前', read: false },
+                { id: 2, type: 'order', content: '您有一个新订单 #12345', time: '1小时前', read: false },
+                { id: 3, type: 'system', content: '账号密码修改成功', time: '昨天', read: true },
+            ])
+            const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
+
+            const markAllRead = () => {
+                notifications.value.forEach(n => n.read = true)
+            }
+
+            // 搜索
+            const handleSearch = () => {
+                ElMessage.info('搜索功能开发中')
+            }
+
+            // 全屏
+            const toggleFullscreen = () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen()
+                } else {
+                    document.exitFullscreen()
+                }
+            }
+
+            // 用户菜单
+            const handleUserCommand = (command) => {
+                if (command === 'logout') {
+                    ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        ElMessage.success('已退出登录')
+                    }).catch(() => {})
+                } else if (command === 'profile') {
+                    ElMessage.info('个人中心开发中')
+                } else if (command === 'settings') {
+                    router.push('/settings/general')
+                }
+            }
+
+            return {
+                breadcrumbs,
+                notifications,
+                unreadCount,
+                markAllRead,
+                handleSearch,
+                toggleFullscreen,
+                handleUserCommand
+            }
+        }
+    })
+</script>
+
+<style>
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 var(--spacing-lg);
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.header-tool {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--color-gray-600);
+    transition: all var(--transition-base);
+}
+
+.header-tool:hover {
+    background: var(--color-gray-100);
+    color: var(--color-primary);
+}
+
+.notification-badge {
+    position: relative;
+}
+
+.badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 16px;
+    color: var(--color-white);
+    background: var(--color-error);
+    border-radius: var(--radius-full);
+    text-align: center;
+}
+
+.notification-panel {
+    margin: -12px;
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.notification-title {
+    font-weight: 600;
+    color: var(--color-gray-900);
+}
+
+.notification-list {
+    padding: var(--spacing-sm);
+}
+
+.notification-item {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background var(--transition-base);
+}
+
+.notification-item:hover {
+    background: var(--color-gray-50);
+}
+
+.notification-item.unread {
+    background: rgba(124, 58, 237, 0.05);
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--color-gray-100);
+    color: var(--color-gray-600);
+}
+
+.notification-icon.system {
+    background: var(--color-info-bg);
+    color: var(--color-info);
+}
+
+.notification-icon.order {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-text {
+    font-size: 13px;
+    color: var(--color-gray-700);
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: var(--color-gray-400);
+    margin-top: 4px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background var(--transition-base);
+}
+
+.user-profile:hover {
+    background: var(--color-gray-100);
+}
+
+.user-name {
+    font-size: 14px;
+    color: var(--color-gray-700);
+}
+
+.el-dropdown-menu__item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+</style>

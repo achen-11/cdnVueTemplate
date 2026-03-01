@@ -1,0 +1,306 @@
+<template id="page-products-list">
+    <div class="page-products-list">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div class="page-title">
+                <h1>产品列表</h1>
+                <p class="page-subtitle">管理产品信息与库存</p>
+            </div>
+            <div class="page-actions">
+                <el-button type="primary" @click="handleAdd">
+                    <el-icon><plus></plus></el-icon>
+                    新增产品
+                </el-button>
+            </div>
+        </div>
+
+        <!-- 搜索筛选 -->
+        <div class="filter-card">
+            <el-form :inline="true" :model="filters" class="filter-form">
+                <el-form-item label="关键词">
+                    <el-input
+                        v-model="filters.keyword"
+                        placeholder="搜索产品名称/SKU"
+                        clearable
+                        style="width: 200px"
+                    >
+                        <template #prefix>
+                            <el-icon><search></search></el-icon>
+                        </template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="分类">
+                    <el-select v-model="filters.category" placeholder="全部" clearable style="width: 150px">
+                        <el-option label="全部" value=""></el-option>
+                        <el-option label="电子产品" value="electronics"></el-option>
+                        <el-option label="服装" value="clothing"></el-option>
+                        <el-option label="食品" value="food"></el-option>
+                        <el-option label="图书" value="books"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-select v-model="filters.status" placeholder="全部" clearable style="width: 120px">
+                        <el-option label="全部" value=""></el-option>
+                        <el-option label="在售" value="active"></el-option>
+                        <el-option label="下架" value="inactive"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="handleSearch">
+                        <el-icon><search></search></el-icon>
+                        搜索
+                    </el-button>
+                    <el-button @click="handleReset">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+
+        <!-- 产品表格 -->
+        <div class="table-card">
+            <el-table
+                :data="products"
+                stripe
+                v-loading="loading"
+                style="width: 100%"
+            >
+                <el-table-column prop="image" label="图片" width="100">
+                    <template #default="{ row }">
+                        <el-image
+                            :src="row.image"
+                            fit="cover"
+                            style="width: 60px; height: 60px; border-radius: 8px;"
+                        >
+                        </el-image>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="name" label="产品名称" min-width="200">
+                    <template #default="{ row }">
+                        <div class="product-name">
+                            <div class="name">{{ row.name }}</div>
+                            <div class="sku">SKU: {{ row.sku }}</div>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="category" label="分类" width="100">
+                    <template #default="{ row }">
+                        <el-tag size="small">{{ getCategoryText(row.category) }}</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="price" label="价格" width="120">
+                    <template #default="{ row }">
+                        <span class="price">¥{{ row.price.toLocaleString() }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="stock" label="库存" width="100">
+                    <template #default="{ row }">
+                        <span :class="{ 'low-stock': row.stock < 10 }">{{ row.stock }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="sales" label="销量" width="100"></el-table-column>
+                <el-table-column prop="status" label="状态" width="100">
+                    <template #default="{ row }">
+                        <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
+                            {{ row.status === 'active' ? '在售' : '下架' }}
+                        </el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="createdAt" label="创建时间" width="180"></el-table-column>
+                <el-table-column label="操作" width="150" fixed="right">
+                    <template #default="{ row }">
+                        <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+                        <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <!-- 分页 -->
+            <div class="pagination-wrapper">
+                <el-pagination
+                    v-model:current-page="pagination.page"
+                    v-model:page-size="pagination.pageSize"
+                    :page-sizes="[10, 20, 50, 100]"
+                    :total="pagination.total"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    @size-change="handleSizeChange"
+                    @current-change="handlePageChange"
+                >
+                </el-pagination>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    defineComponent('page-products-list', {
+        template: '#page-products-list',
+        props: {},
+        emit: [],
+        setup() {
+            const loading = ref(false)
+
+            const filters = reactive({
+                keyword: '',
+                category: '',
+                status: ''
+            })
+
+            const pagination = reactive({
+                page: 1,
+                pageSize: 10,
+                total: 0
+            })
+
+            // 模拟数据
+            const products = ref([
+                { id: 1, name: 'iPhone 15 Pro Max', sku: 'IPHONE15-256', category: 'electronics', price: 9999, stock: 50, sales: 1234, status: 'active', image: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg', createdAt: '2024-01-10 10:30:00' },
+                { id: 2, name: 'MacBook Pro 14"', sku: 'MACBOOK-14-M3', category: 'electronics', price: 15999, stock: 25, sales: 567, status: 'active', image: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg', createdAt: '2024-01-15 14:20:00' },
+                { id: 3, name: 'AirPods Pro 2', sku: 'AIRPODS-PRO-2', category: 'electronics', price: 1899, stock: 8, sales: 2345, status: 'active', image: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg', createdAt: '2024-02-01 09:15:00' },
+                { id: 4, name: '纯棉T恤', sku: 'TSHIRT-WHITE-M', category: 'clothing', price: 129, stock: 200, sales: 890, status: 'active', image: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg', createdAt: '2024-02-10 11:30:00' },
+                { id: 5, name: '牛仔裤', sku: 'JEANS-BLUE-32', category: 'clothing', price: 299, stock: 0, sales: 456, status: 'inactive', image: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg', createdAt: '2024-02-15 16:45:00' },
+            ])
+
+            pagination.total = products.value.length
+
+            const getCategoryText = (category) => {
+                const map = {
+                    electronics: '电子产品',
+                    clothing: '服装',
+                    food: '食品',
+                    books: '图书'
+                }
+                return map[category] || category
+            }
+
+            const handleSearch = () => {
+                loading.value = true
+                setTimeout(() => {
+                    loading.value = false
+                    ElMessage.success('搜索成功')
+                }, 500)
+            }
+
+            const handleReset = () => {
+                filters.keyword = ''
+                filters.category = ''
+                filters.status = ''
+                handleSearch()
+            }
+
+            const handleAdd = () => {
+                ElMessage.info('新增产品功能开发中')
+            }
+
+            const handleEdit = (row) => {
+                ElMessage.info('编辑产品: ' + row.name)
+            }
+
+            const handleDelete = (row) => {
+                ElMessageBox.confirm(`确定要删除产品 ${row.name} 吗？`, '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    ElMessage.success('删除成功')
+                }).catch(() => {})
+            }
+
+            const handleSizeChange = (val) => {
+                pagination.pageSize = val
+                handleSearch()
+            }
+
+            const handlePageChange = (val) => {
+                pagination.page = val
+                handleSearch()
+            }
+
+            return {
+                loading,
+                filters,
+                pagination,
+                products,
+                getCategoryText,
+                handleSearch,
+                handleReset,
+                handleAdd,
+                handleEdit,
+                handleDelete,
+                handleSizeChange,
+                handlePageChange
+            }
+        }
+    })
+</script>
+
+<style>
+.page-products-list {
+    max-width: 1400px;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+}
+
+.page-title h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    margin: 0;
+}
+
+.page-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-gray-500);
+    margin: 4px 0 0 0;
+}
+
+.filter-card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-form {
+    margin: 0;
+}
+
+.table-card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.product-name .name {
+    font-weight: 500;
+    color: var(--color-gray-900);
+}
+
+.product-name .sku {
+    font-size: 12px;
+    color: var(--color-gray-400);
+    margin-top: 2px;
+}
+
+.price {
+    font-weight: 600;
+    color: var(--color-error);
+}
+
+.low-stock {
+    color: var(--color-warning);
+    font-weight: 600;
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-gray-100);
+}
+</style>
