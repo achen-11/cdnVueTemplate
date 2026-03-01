@@ -4729,31 +4729,6 @@ declare namespace Kooboo.Sites.Models {
     clone(): any;
   }
 
-  interface DomElement extends Kooboo.Data.Interface.ISiteObject {
-    id: any;
-    parentId: any;
-    name: string;
-    depth: number;
-    sibling: number;
-    openTagStartIndex: number;
-    endTagEndIndex: number;
-    nodeAttributes: Record<string, string>;
-    nodeAttributeHash: any;
-    nodeAttributeString: string;
-    parentPathHash: any;
-    parentPath: string;
-    subElementString: string;
-    subElementHash: any;
-    koobooId: string;
-    koobooIdHash: any;
-    innerHtmlHash: any;
-    ownerObjectId: any;
-    ownerObjectType: number;
-    constType: number;
-    creationDate: Date;
-    lastModified: Date;
-  }
-
   interface Form extends Kooboo.Data.Interface.ISiteObject, Kooboo.Data.Interface.ICoreObject, Kooboo.Data.Interface.IEmbeddable, Kooboo.Data.Interface.ITextObject, CoreObject {
     body: string;
     engine: string;
@@ -5994,6 +5969,7 @@ declare namespace Kooboo.Data.Models {
     unocssSettings: Kooboo.Data.Unocss.UnocssSettings;
     canonicalURLSetting: CanonicalURLSetting;
     navigationFlowSetting: NavigationFlowSetting;
+    resourceGuardianSetting: ResourceGuardianSetting;
     rateLimitSettings: Kooboo.Data.RateLimits.RateLimitSettings;
     accessLimitSettings: Kooboo.Data.RateLimits.AccessLimitSettings;
     cookieConsentSetting: CookieConsentSetting;
@@ -6102,6 +6078,12 @@ declare namespace Kooboo.Data.Models {
     riskyRate: number;
   }
 
+  interface ResourceGuardianSetting {
+    enableResourceLog: boolean;
+    enableGuardian: boolean;
+    protections: ResourceProtectionSetting[];
+  }
+
   interface CookieConsentSetting {
     enable: boolean;
     displayRule: DisplayRule;
@@ -6150,7 +6132,6 @@ declare namespace Kooboo.Data.Models {
     hashSaltValidator: any;
     cookieConsent: string;
     sessionId: string;
-    blocked: boolean;
     city: string;
     countryCode: string;
     continent: string;
@@ -6243,6 +6224,19 @@ declare namespace Kooboo.Data.Models {
     clone(): StepGroup;
   }
 
+  interface ResourceProtectionSetting {
+    priority: number;
+    method: ProtectMethod;
+    startPath: string;
+    extension: string;
+    blackListDomains: string[];
+    watermark: WatermarkSetting;
+    redirectUrl: string;
+    matchPath(path: string): boolean;
+    matchExtension(ext: string): boolean;
+    isBlockedReferer(referer: string): boolean;
+  }
+
   interface CookieText {
     title: string;
     description: string;
@@ -6301,21 +6295,11 @@ declare namespace Kooboo.Data.Models {
     objectId: any;
     constType: number;
     modelType: any;
+    modelName: string;
     url: string;
     name: string;
     remark: string;
     extensions: any;
-  }
-
-  interface ImageLog extends Kooboo.Data.Storage.IWeeklyItem {
-    id: number;
-    imageId: any;
-    url: string;
-    size: number;
-    clientIP: string;
-    clientIPHash: any;
-    hashSaltValidator: any;
-    startTime: Date;
   }
 
   interface SiteErrorLog extends Kooboo.Data.Storage.IWeeklyItem {
@@ -6370,6 +6354,16 @@ declare namespace Kooboo.Data.Models {
     stepIndex: number;
     items: StepItem[];
     clone(): ManualStepDefinition;
+  }
+
+  type ProtectMethod = 'Forbidden' | 'Redirect' | 'WaterMark';
+
+  interface WatermarkSetting {
+    text: string;
+    opacity: number;
+    fontSize: number;
+    position: string;
+    color: string;
   }
 
   interface ButtonText {
@@ -8341,7 +8335,7 @@ var output = k.utils.image.addWatermark(image, watermark, {
 
 k.file.writeBinary("output.jpg", output) */
     addWatermark(binary: number[], watermark: number[], option: WatermarkOptions): number[];
-    getSize(Image: number[]): Kooboo.Lib.Utilities.SizeMeansurement;
+    getSize(Image: number[]): Kooboo.Lib.Utilities.SizeMeasurement;
     getGifFrameCount(image: number[]): number;
     convertToTwoFramesGif(image: number[]): number[];
   }
@@ -12283,7 +12277,6 @@ declare namespace Kooboo.Sites.Repository {
     files: CmsFileRepository;
     codeLog: Kooboo.Sites.Scripting.Global.Logging.CodeLogStore;
     folders: FolderRepository;
-    domElements: DomElementRepository;
     routes: RouteRepository;
     forms: FormRepository;
     formSetting: FormSettingRepository;
@@ -12308,8 +12301,6 @@ declare namespace Kooboo.Sites.Repository {
     logFolder: string;
     codeLogFolder: string;
     siteLogVideoFolder: string;
-    imageLog: Kooboo.Data.Storage.ImageLogStore;
-    botLog: Kooboo.Data.Storage.BotLogStore;
     errorLog: Kooboo.Data.Storage.ErrorLogStore;
     log: Kooboo.IndexedDB.EditLog;
     styles: StyleRepository;
@@ -12343,10 +12334,8 @@ declare namespace Kooboo.Sites.Repository {
     getSiteRepositoryByModelType(ModelType: any): Kooboo.Data.Interface.IRepository;
     isStoreExists(ModelType: any): boolean;
     routeTree(ConstType?: number): Kooboo.Sites.Routing.PathTree;
-    imageLogByWeek(weekName: string): Kooboo.Data.Storage.ImageLogStore;
-    botLogByWeek(weekName: string): Kooboo.Data.Storage.BotLogStore;
     errorLogByWeek(weekName: string): Kooboo.Data.Storage.ErrorLogStore;
-    clearLog(storenames: string[]): void;
+    clearLog(storeNames: string[]): void;
   }
 
   interface SearchOptions {
@@ -12938,58 +12927,6 @@ declare namespace Kooboo.Sites.Repository {
     rollBack(log: Kooboo.IndexedDB.LogEntry): void;
     rollBack(loglist: Kooboo.IndexedDB.LogEntry[]): void;
     checkBeingUsed(SiteObject: Kooboo.Sites.Models.Folder): Kooboo.Sites.Relation.ObjectRelation[];
-    checkBeingUsed(ObjectId: any): Kooboo.Sites.Relation.ObjectRelation[];
-    rebuild(): void;
-  }
-
-  interface DomElementRepository extends ISiteRepositoryBase, Kooboo.Data.Interface.IRepository {
-    storeParameters: Kooboo.IndexedDB.ObjectStoreParameters;
-    siteDb: SiteDb;
-    siteObjectType: any;
-    useCache: boolean;
-    webSite: Kooboo.Data.Models.WebSite;
-    storeName: string;
-    store: any;
-    query: any;
-    tableScan: any;
-    getByKoobooId(OwnerObjectId: any, OwnerConstType: number, KoobooId: string): Kooboo.Sites.Models.DomElement;
-    getSamePageElement(pageelement: Kooboo.Sites.Models.DomElement, DesitinationObjectId: any, ConstType: number): Kooboo.Sites.Models.DomElement;
-    cleanSub(PageElementId: any, AllOwnerElements: Kooboo.Sites.Models.DomElement[]): void;
-    cleanObject(OwnerObjectId: any, ConstType: number): void;
-    listSub(ParentId: any): Kooboo.Sites.Models.DomElement[];
-    addOrUpdate(element: Kooboo.Sites.Models.DomElement, UserId?: any): boolean;
-    addOrUpdateDom(Dom: Kooboo.Dom.Document, OwnerObjectId: any, OwnerConstType: number, NewThread?: boolean): void;
-    suggestLayout(ObjectX: any, ObjectY: any, ConstType: number): Kooboo.Sites.Models.DomElement[];
-    suggestLayout(ObjectIds: any[], ConstType: number): Kooboo.Sites.Models.DomElement[];
-    getAllPageElements(ObjectIds: any[], ConstType: number): any[];
-    testAsLayout(element: Kooboo.Sites.Models.DomElement, sitePages: any[]): boolean;
-    getSamePageElements(sitePages: any[]): Kooboo.Sites.Models.DomElement[];
-    init(): void;
-    isEqualTo(value: Kooboo.Sites.Models.DomElement): boolean;
-    addOrUpdate(value: Kooboo.Sites.Models.DomElement, UserId: any, betweenEvent: ()=>void): boolean;
-    addOrUpdate(value: Kooboo.Sites.Models.DomElement): boolean;
-    delete(id: any): number;
-    delete(id: any, UserId: any): number;
-    delete(id: any, UserId: any, betweenEvent: ()=>void): number;
-    getLatestVersion(Id: any): number;
-    get(id: any, getColumnDataOnly?: boolean): Kooboo.Sites.Models.DomElement;
-    getAsync(id: any): any;
-    getFromCache(id: any): Kooboo.Sites.Models.DomElement;
-    get(nameorid: string): Kooboo.Sites.Models.DomElement;
-    getWithEvent(id: any): Kooboo.Sites.Models.DomElement;
-    getByUrl(relativeUrl: string): Kooboo.Sites.Models.DomElement;
-    getMetaByUrl(relativeUrl: string): Kooboo.Sites.Models.DomElement;
-    getByNameOrId(NameOrGuid: string): Kooboo.Sites.Models.DomElement;
-    getUsedBy(ObjectId: any): Kooboo.Data.Models.UsedByRelation[];
-    getUsedByForCount(ObjectId: any): Kooboo.Data.Models.UsedByRelation[];
-    count(): number;
-    all(UseColumnData: boolean): Kooboo.Sites.Models.DomElement[];
-    all(): Kooboo.Sites.Models.DomElement[];
-    list(UseColumnData?: boolean): Kooboo.Sites.Models.DomElement[];
-    isEqual(x: Kooboo.Sites.Models.DomElement, y: Kooboo.Sites.Models.DomElement): boolean;
-    rollBack(log: Kooboo.IndexedDB.LogEntry): void;
-    rollBack(loglist: Kooboo.IndexedDB.LogEntry[]): void;
-    checkBeingUsed(SiteObject: Kooboo.Sites.Models.DomElement): Kooboo.Sites.Relation.ObjectRelation[];
     checkBeingUsed(ObjectId: any): Kooboo.Sites.Relation.ObjectRelation[];
     rebuild(): void;
   }
@@ -14997,7 +14934,7 @@ declare namespace Kooboo.Data.Models.Converter {
 
 }
 declare namespace Kooboo.Lib.Utilities {
-  interface SizeMeansurement {
+  interface SizeMeasurement {
     height: number;
     width: number;
   }
@@ -16202,28 +16139,6 @@ k.response.redirect(url);
 
 }
 declare namespace Kooboo.Data.Storage {
-  interface ImageLogStore {
-    groupByFunctions: Record<string, (p1:System.String,)=>Kooboo.Data.Models.ImageLog>;
-    topUrl: Record<string, number>;
-    typeName: string;
-    collection: Kooboo.Data.Models.ImageLog[];
-    add(Value: Kooboo.Data.Models.ImageLog): void;
-    close(): void;
-    readSummary(): WeekLogSummary;
-    list(PageNumber: number, PageSize: number): any;
-  }
-
-  interface BotLogStore {
-    typeName: string;
-    groupByFunctions: Record<string, (p1:System.String,)=>Kooboo.Data.Models.VisitorLog>;
-    topBots: Record<string, number>;
-    collection: Kooboo.Data.Models.VisitorLog[];
-    add(Value: Kooboo.Data.Models.VisitorLog): void;
-    close(): void;
-    readSummary(): WeekLogSummary;
-    list(PageNumber: number, PageSize: number): any;
-  }
-
   interface ErrorLogStore {
     groupByFunctions: Record<string, (p1:System.String,)=>Kooboo.Data.Models.SiteErrorLog>;
     topStatusCode: Record<string, number>;
@@ -16264,7 +16179,7 @@ declare namespace Kooboo.Data.Storage {
 declare namespace Kooboo.IndexedDB {
   interface Database {
     log: EditLog;
-    tableLog: BlockFile;
+    tableLog: Kooboo.IndexedDB.FileIO.IBlockFile;
     tablePath: string;
     name: string;
     absolutePath: string;
@@ -16279,7 +16194,7 @@ declare namespace Kooboo.IndexedDB {
     getSequenceOld(name: string): any;
     getObjectStore(name: string): any;
     getReadingStore(name: string, paras?: ObjectStoreParameters): any;
-    rebuildObjectStore(currentStore: any, newparas: ObjectStoreParameters): any;
+    rebuildObjectStore(currentStore: any, newParas: ObjectStoreParameters): any;
     restoreFromDisk(StoreName: string): void;
     restoreFromDisk(store: any): any;
     deleteObjectStore(name: string): void;
@@ -16383,25 +16298,6 @@ declare namespace Kooboo.IndexedDB {
     addIndex(expression: any): void;
     addIndex(expression: any, maxlength: number): void;
     setPrimaryKeyField(expression: any, len?: number): void;
-  }
-
-  interface BlockFile {
-    stream: any;
-    openOrCreate(): void;
-    getContent(position: number, KeyColumnOffset: number): number[];
-    add(bytes: number[], TotalByteLen: number): number;
-    updatePart(diskPosition: number, parts: number[]): boolean;
-    get(position: number): number[];
-    getAsync(position: number): any;
-    delete(position: number): void;
-    getLength(position: number): number;
-    getAllCols(position: number, ColumnLen: number): number[];
-    getAllColsAsync(position: number, ColumnLen: number): any;
-    getCol(position: number, relativePos: number, len: number): number[];
-    updateCol(position: number, relativeposition: number, length: number, values: number[]): void;
-    close(): void;
-    delSelf(): void;
-    flush(): void;
   }
 
 }
@@ -17015,6 +16911,27 @@ declare namespace Kooboo.IndexedDB.Dynamic {
     skipDefaultValue: boolean;
     toBytes: (p1:System.Byte[],)=>System.Object;
     fromBytes: (p1:System.Object,)=>System.Byte[];
+  }
+
+}
+declare namespace Kooboo.IndexedDB.FileIO {
+  interface IBlockFile {
+    fullFileName: string;
+    length: number;
+    add(bytes: number[], totalByteLen: number): number;
+    get(position: number): number[];
+    getPartial(position: number, offset: number, count: number): number[];
+    getAsync(position: number): any;
+    updatePart(diskPosition: number, parts: number[]): boolean;
+    updateCol(position: number, relativePosition: number, length: number, values: number[]): void;
+    delete(position: number): void;
+    getLength(position: number): number;
+    getCol(position: number, relativePos: number, len: number): number[];
+    getAllCols(position: number, ColumnLen: number): number[];
+    getAllColsAsync(position: number, ColumnLen: number): any;
+    flush(): void;
+    close(): void;
+    delSelf(): void;
   }
 
 }

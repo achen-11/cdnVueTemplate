@@ -7,8 +7,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理后台 - Kooboo</title>
-    
     <view id="common.common"></view>
+	<script env="server" type="module">
+		import { getUserInfo } from './Services.user'
+		// 请先登录
+		if (!k.account.isLogin) {
+		    k.response.redirect('/_admin/login?returnurl=/')
+		    return
+		}
+		
+		const username = k.account.user.current.userName
+		
+		const userInfo = getUserInfo(username)
+		
+		k.utils.clientJS.setVariable('__USER_INFO__', userInfo)
+	</script>
 </head>
 
 <body>

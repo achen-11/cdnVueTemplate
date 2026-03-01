@@ -1,10 +1,7 @@
 <template id="page-component">
     <div class="app-layout">
         <!-- 侧边栏 -->
-        <app-sidebar
-            :is-collapse="sidebarCollapse"
-            @update:is-collapse="sidebarCollapse = $event"
-        >
+        <app-sidebar :is-collapse="sidebarCollapse" @update:is-collapse="sidebarCollapse = $event">
         </app-sidebar>
         <!-- 主内容区 -->
         <div class="app-main" :class="{ collapsed: sidebarCollapse }">

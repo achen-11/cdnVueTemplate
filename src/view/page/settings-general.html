@@ -11,35 +11,19 @@
         <div class="settings-layout">
             <!-- 左侧设置菜单 -->
             <div class="settings-menu">
-                <div
-                    class="menu-item"
-                    :class="{ active: activeTab === 'general' }"
-                    @click="activeTab = 'general'"
-                >
+                <div class="menu-item" :class="{ active: activeTab === 'general' }" @click="activeTab = 'general'">
                     <el-icon><setting></setting></el-icon>
                     <span>基本设置</span>
                 </div>
-                <div
-                    class="menu-item"
-                    :class="{ active: activeTab === 'site' }"
-                    @click="activeTab = 'site'"
-                >
+                <div class="menu-item" :class="{ active: activeTab === 'site' }" @click="activeTab = 'site'">
                     <el-icon><site></site></el-icon>
                     <span>站点设置</span>
                 </div>
-                <div
-                    class="menu-item"
-                    :class="{ active: activeTab === 'email' }"
-                    @click="activeTab = 'email'"
-                >
+                <div class="menu-item" :class="{ active: activeTab === 'email' }" @click="activeTab = 'email'">
                     <el-icon><message></message></el-icon>
                     <span>邮件设置</span>
                 </div>
-                <div
-                    class="menu-item"
-                    :class="{ active: activeTab === 'upload' }"
-                    @click="activeTab = 'upload'"
-                >
+                <div class="menu-item" :class="{ active: activeTab === 'upload' }" @click="activeTab = 'upload'">
                     <el-icon><upload></upload></el-icon>
                     <span>上传设置</span>
                 </div>
@@ -52,17 +36,17 @@
                     <h3 class="panel-title">基本设置</h3>
                     <el-form :model="generalForm" label-width="120px" class="settings-form">
                         <el-form-item label="系统名称">
-                            <el-input v-model="generalForm.systemName" placeholder="请输入系统名称" />
-                        </el-form-item>
+                            <el-input v-model="generalForm.systemName" placeholder="请输入系统名称">
+                        </el-input></el-form-item>
                         <el-form-item label="系统描述">
-                            <el-input v-model="generalForm.description" type="textarea" :rows="3" placeholder="请输入系统描述" />
-                        </el-form-item>
+                            <el-input v-model="generalForm.description" type="textarea" :rows="3" placeholder="请输入系统描述">
+                        </el-input></el-form-item>
                         <el-form-item label="时区">
                             <el-select v-model="generalForm.timezone" style="width: 100%">
-                                <el-option label="中国标准时间 (UTC+8)" value="Asia/Shanghai" />
-                                <el-option label="美国东部时间 (UTC-5)" value="America/New_York" />
-                                <el-option label="英国标准时间 (UTC+0)" value="Europe/London" />
-                            </el-select>
+                                <el-option label="中国标准时间 (UTC+8)" value="Asia/Shanghai">
+                                <el-option label="美国东部时间 (UTC-5)" value="America/New_York">
+                                <el-option label="英国标准时间 (UTC+0)" value="Europe/London">
+                            </el-option></el-option></el-option></el-select>
                         </el-form-item>
                         <el-form-item label="语言">
                             <el-radio-group v-model="generalForm.language">
@@ -88,27 +72,23 @@
                     <h3 class="panel-title">站点设置</h3>
                     <el-form :model="siteForm" label-width="120px" class="settings-form">
                         <el-form-item label="网站标题">
-                            <el-input v-model="siteForm.title" placeholder="请输入网站标题" />
-                        </el-form-item>
+                            <el-input v-model="siteForm.title" placeholder="请输入网站标题">
+                        </el-input></el-form-item>
                         <el-form-item label="网站描述">
-                            <el-input v-model="siteForm.description" type="textarea" :rows="3" placeholder="请输入网站描述" />
-                        </el-form-item>
+                            <el-input v-model="siteForm.description" type="textarea" :rows="3" placeholder="请输入网站描述">
+                        </el-input></el-form-item>
                         <el-form-item label="网站关键词">
-                            <el-input v-model="siteForm.keywords" placeholder="请输入关键词，用逗号分隔" />
-                        </el-form-item>
+                            <el-input v-model="siteForm.keywords" placeholder="请输入关键词，用逗号分隔">
+                        </el-input></el-form-item>
                         <el-form-item label="网站Logo">
                             <div class="logo-uploader">
-                                <el-image
-                                    :src="siteForm.logo"
-                                    fit="contain"
-                                    style="width: 120px; height: 40px; border: 1px solid var(--color-gray-200); border-radius: 8px;"
-                                />
+                                <el-image :src="siteForm.logo" fit="contain" style="width: 120px; height: 40px; border: 1px solid var(--color-gray-200); border-radius: 8px;">
                                 <el-button size="small">更换Logo</el-button>
-                            </div>
+                            </el-image></div>
                         </el-form-item>
                         <el-form-item label="备案号">
-                            <el-input v-model="siteForm.icp" placeholder="请输入备案号" />
-                        </el-form-item>
+                            <el-input v-model="siteForm.icp" placeholder="请输入备案号">
+                        </el-input></el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="handleSaveSite">保存设置</el-button>
                         </el-form-item>
@@ -120,23 +100,23 @@
                     <h3 class="panel-title">邮件设置</h3>
                     <el-form :model="emailForm" label-width="120px" class="settings-form">
                         <el-form-item label="SMTP服务器">
-                            <el-input v-model="emailForm.host" placeholder="请输入SMTP服务器地址" />
-                        </el-form-item>
+                            <el-input v-model="emailForm.host" placeholder="请输入SMTP服务器地址">
+                        </el-input></el-form-item>
                         <el-form-item label="SMTP端口">
-                            <el-input v-model="emailForm.port" type="number" placeholder="请输入SMTP端口" />
-                        </el-form-item>
+                            <el-input v-model="emailForm.port" type="number" placeholder="请输入SMTP端口">
+                        </el-input></el-form-item>
                         <el-form-item label="用户名">
-                            <el-input v-model="emailForm.username" placeholder="请输入用户名" />
-                        </el-form-item>
+                            <el-input v-model="emailForm.username" placeholder="请输入用户名">
+                        </el-input></el-form-item>
                         <el-form-item label="密码">
-                            <el-input v-model="emailForm.password" type="password" show-password placeholder="请输入密码" />
-                        </el-form-item>
+                            <el-input v-model="emailForm.password" type="password" show-password="" placeholder="请输入密码">
+                        </el-input></el-form-item>
                         <el-form-item label="发件人邮箱">
-                            <el-input v-model="emailForm.from" placeholder="请输入发件人邮箱" />
-                        </el-form-item>
+                            <el-input v-model="emailForm.from" placeholder="请输入发件人邮箱">
+                        </el-input></el-form-item>
                         <el-form-item label="发件人名称">
-                            <el-input v-model="emailForm.fromName" placeholder="请输入发件人名称" />
-                        </el-form-item>
+                            <el-input v-model="emailForm.fromName" placeholder="请输入发件人名称">
+                        </el-input></el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="handleSaveEmail">保存设置</el-button>
                             <el-button @click="handleTestEmail">发送测试邮件</el-button>
@@ -149,9 +129,9 @@
                     <h3 class="panel-title">上传设置</h3>
                     <el-form :model="uploadForm" label-width="120px" class="settings-form">
                         <el-form-item label="最大文件大小">
-                            <el-input-number v-model="uploadForm.maxSize" :min="1" :max="100" />
+                            <el-input-number v-model="uploadForm.maxSize" :min="1" :max="100">
                             <span class="form-help-text">MB</span>
-                        </el-form-item>
+                        </el-input-number></el-form-item>
                         <el-form-item label="允许的文件类型">
                             <el-checkbox-group v-model="uploadForm.allowedTypes">
                                 <el-checkbox label="jpg">JPG</el-checkbox>
@@ -163,12 +143,12 @@
                             </el-checkbox-group>
                         </el-form-item>
                         <el-form-item label="图片压缩">
-                            <el-switch v-model="uploadForm.compress" />
+                            <el-switch v-model="uploadForm.compress">
                             <span class="form-help-text">上传图片时自动压缩</span>
-                        </el-form-item>
+                        </el-switch></el-form-item>
                         <el-form-item label="图片质量">
-                            <el-slider v-model="uploadForm.quality" :min="10" :max="100" show-input />
-                        </el-form-item>
+                            <el-slider v-model="uploadForm.quality" :min="10" :max="100" show-input="">
+                        </el-slider></el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="handleSaveUpload">保存设置</el-button>
                         </el-form-item>

@@ -18,19 +18,14 @@
         <div class="filter-card">
             <el-form :inline="true" :model="filters" class="filter-form">
                 <el-form-item label="关键词">
-                    <el-input
-                        v-model="filters.keyword"
-                        placeholder="搜索产品名称/SKU"
-                        clearable
-                        style="width: 200px"
-                    >
-                        <template #prefix>
+                    <el-input v-model="filters.keyword" placeholder="搜索产品名称/SKU" clearable="" style="width: 200px">
+                        <template #prefix="">
                             <el-icon><search></search></el-icon>
                         </template>
                     </el-input>
                 </el-form-item>
                 <el-form-item label="分类">
-                    <el-select v-model="filters.category" placeholder="全部" clearable style="width: 150px">
+                    <el-select v-model="filters.category" placeholder="全部" clearable="" style="width: 150px">
                         <el-option label="全部" value=""></el-option>
                         <el-option label="电子产品" value="electronics"></el-option>
                         <el-option label="服装" value="clothing"></el-option>
@@ -39,7 +34,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="状态">
-                    <el-select v-model="filters.status" placeholder="全部" clearable style="width: 120px">
+                    <el-select v-model="filters.status" placeholder="全部" clearable="" style="width: 120px">
                         <el-option label="全部" value=""></el-option>
                         <el-option label="在售" value="active"></el-option>
                         <el-option label="下架" value="inactive"></el-option>
@@ -57,19 +52,10 @@
 
         <!-- 产品表格 -->
         <div class="table-card">
-            <el-table
-                :data="products"
-                stripe
-                v-loading="loading"
-                style="width: 100%"
-            >
+            <el-table :data="products" stripe="" v-loading="loading" style="width: 100%">
                 <el-table-column prop="image" label="图片" width="100">
                     <template #default="{ row }">
-                        <el-image
-                            :src="row.image"
-                            fit="cover"
-                            style="width: 60px; height: 60px; border-radius: 8px;"
-                        >
+                        <el-image :src="row.image" fit="cover" style="width: 60px; height: 60px; border-radius: 8px;">
                         </el-image>
                     </template>
                 </el-table-column>
@@ -107,23 +93,15 @@
                 <el-table-column prop="createdAt" label="创建时间" width="180"></el-table-column>
                 <el-table-column label="操作" width="150" fixed="right">
                     <template #default="{ row }">
-                        <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-                        <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+                        <el-button link="" type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+                        <el-button link="" type="danger" size="small" @click="handleDelete(row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
 
             <!-- 分页 -->
             <div class="pagination-wrapper">
-                <el-pagination
-                    v-model:current-page="pagination.page"
-                    v-model:page-size="pagination.pageSize"
-                    :page-sizes="[10, 20, 50, 100]"
-                    :total="pagination.total"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    @size-change="handleSizeChange"
-                    @current-change="handlePageChange"
-                >
+                <el-pagination v-model:current-page="pagination.page" v-model:page-size="pagination.pageSize" :page-sizes="[10, 20, 50, 100]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handlePageChange">
                 </el-pagination>
             </div>
         </div>

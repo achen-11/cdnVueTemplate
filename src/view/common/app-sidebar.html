@@ -4,12 +4,12 @@
         <div class="sidebar-logo">
             <div class="logo-icon">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
-                    <path d="M10 16L14 20L22 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"></rect>
+                    <path d="M10 16L14 20L22 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
                     <defs>
                         <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
-                            <stop stop-color="#7C3AED"/>
-                            <stop offset="1" stop-color="#A78BFA"/>
+                            <stop stop-color="#7C3AED"></stop>
+                            <stop offset="1" stop-color="#A78BFA"></stop>
                         </linearGradient>
                     </defs>
                 </svg>
@@ -19,26 +19,18 @@
 
         <!-- 导航菜单 -->
         <el-scrollbar class="sidebar-menu-scroll">
-            <el-menu
-                :default-active="activeMenu"
-                class="sidebar-menu"
-                :collapse="isCollapse"
-                background-color="transparent"
-                text-color="var(--color-gray-400)"
-                active-text-color="var(--color-primary)"
-                :router="true"
-            >
+            <el-menu :default-active="activeMenu" class="sidebar-menu" :collapse="isCollapse" background-color="transparent" text-color="var(--color-gray-400)" active-text-color="var(--color-primary)" :router="true">
                 <!-- 首页 -->
                 <el-menu-item index="/dashboard">
                     <el-icon>
                         <odometer></odometer>
                     </el-icon>
-                    <template #title>仪表盘</template>
+                    <template #title="">仪表盘</template>
                 </el-menu-item>
 
                 <!-- 用户管理 -->
                 <el-sub-menu index="/users" v-if="hasPermission('users')">
-                    <template #title>
+                    <template #title="">
                         <el-icon><user></user></el-icon>
                         <span>用户管理</span>
                     </template>
@@ -48,7 +40,7 @@
 
                 <!-- 产品管理 -->
                 <el-sub-menu index="/products" v-if="hasPermission('products')">
-                    <template #title>
+                    <template #title="">
                         <el-icon><goods></goods></el-icon>
                         <span>产品管理</span>
                     </template>
@@ -59,18 +51,18 @@
                 <!-- 订单管理 -->
                 <el-menu-item index="/orders" v-if="hasPermission('orders')">
                     <el-icon><shopping-cart></shopping-cart></el-icon>
-                    <template #title>订单管理</template>
+                    <template #title="">订单管理</template>
                 </el-menu-item>
 
                 <!-- 数据分析 -->
                 <el-menu-item index="/analytics" v-if="hasPermission('analytics')">
                     <el-icon><data-analysis></data-analysis></el-icon>
-                    <template #title>数据分析</template>
+                    <template #title="">数据分析</template>
                 </el-menu-item>
 
                 <!-- 系统设置 -->
                 <el-sub-menu index="/settings">
-                    <template #title>
+                    <template #title="">
                         <el-icon><setting></setting></el-icon>
                         <span>系统设置</span>
                     </template>
@@ -85,7 +77,7 @@
             <div class="collapse-btn" @click="toggleCollapse">
                 <el-icon>
                     <arrow-left v-if="!isCollapse"></arrow-left>
-                    <arrow-right v-else></arrow-right>
+                    <arrow-right v-else=""></arrow-right>
                 </el-icon>
             </div>
         </div>
